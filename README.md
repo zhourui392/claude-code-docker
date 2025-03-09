@@ -1,10 +1,9 @@
-# 🤖 Claude Code CLI Container
+# 🤖 Claude Code CLI Container (Unofficial)
 
-A containerized version of the Claude Code CLI by Anthropic, allowing you to interact with Claude's powerful AI assistance for coding tasks in any project.
+An unofficial containerized version of the Claude Code CLI, allowing you to interact with Claude's powerful AI assistance for coding tasks in any project. This is not an official Anthropic product. All the code is written by the Claude-code.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
-[![Anthropic](https://img.shields.io/badge/Powered%20by-Claude-9B59B6)](https://www.anthropic.com/)
 
 ## 🌟 Features
 
@@ -14,6 +13,10 @@ A containerized version of the Claude Code CLI by Anthropic, allowing you to int
 - **Simple commands** through the Makefile interface
 - **Extensible architecture** with initialization scripts
 - **Secure container** with proper health checks
+- **Correct file permissions** - Container runs as your user ID
+- **Performance optimized** - Uses npm cache volume for faster startups
+- **Authentication support** - Easy API key configuration
+- **Network resilience** - Automatic retries on installation failures
 
 ## 📋 Requirements
 
@@ -58,26 +61,36 @@ The build process uses `--no-cache` and `--pull` flags to ensure a completely fr
 Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) for quick access:
 
 ```bash
-# Add Claude Code container alias
-alias claude='docker run --rm -it -v "$(pwd):/app" claude-code'
+# Add Claude Code container alias with npm cache volume and user ID mapping
+alias claude='docker run --rm -it -v "$(pwd):/app" -v claude-code-npm-cache:/npm-cache -e CONTAINER_USER_ID=$(id -u) -e CONTAINER_GROUP_ID=$(id -g) claude-code'
+
+# Add API authenticated version
+alias claude-auth='docker run --rm -it -v "$(pwd):/app" -v claude-code-npm-cache:/npm-cache -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" -e CONTAINER_USER_ID=$(id -u) -e CONTAINER_GROUP_ID=$(id -g) claude-code'
 ```
 
-With this alias, you can simply use:
+With these aliases, you can simply use:
 
 ```bash
+# Basic usage
 claude
+
+# When authentication is needed
+claude-auth
 ```
 
-And the container will launch with your current directory mounted, ready to help!
+The container will launch with your current directory mounted, ready to help! It will automatically detect and use your user ID and group ID, ensuring that any files created within the container will be owned by you.
 
 ## 🛠️ Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `make build` | Build the Docker image |
+| `make build` | Build the Docker image (clean build) |
+| `make quick-build` | Build the Docker image using cache (faster) |
 | `make run` | Run Claude in the current directory |
 | `make run-dir DIR=/path` | Run Claude in a specific directory |
+| `make run-auth KEY=your_api_key` | Run with Anthropic API key |
 | `make clean` | Remove the Docker image |
+| `make clean-all` | Remove image and cache volumes |
 | `make help` | Display help information |
 
 ## 🧰 Container Structure
@@ -87,16 +100,29 @@ And the container will launch with your current directory mounted, ready to help
 ├── docker-entrypoint.sh     # Main entry point script
 ├── docker-entrypoint.d/     # Initialization scripts
 │   └── 001_claude_code.sh   # Installs Claude Code CLI
-└── app/                     # Mount point for your code
+├── app/                     # Mount point for your code
+└── npm-cache/               # Persistent npm cache for faster startups
 ```
+
+## 🌐 Environment Variables
+
+The container supports the following environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `ANTHROPIC_API_KEY` | Your Anthropic API key for authentication |
+| `CONTAINER_USER_ID` | User ID to run the container as (defaults to /app directory owner) |
+| `CONTAINER_GROUP_ID` | Group ID to run the container as (defaults to /app directory group) |
+| `CLAUDE_OFFLINE` | Set to any value to use offline pre-cached packages |
 
 ## 🔒 Security
 
 The container:
 - Uses a Debian slim base image
-- Contains only the necessary dependencies (Node.js, npm)
+- Contains only the necessary dependencies (Node.js, npm) with default versions
 - Runs initialization scripts with proper error handling
 - Includes health checks for container monitoring
+- Automatically runs as the host user's UID/GID to prevent permission issues with created files
 
 ## 🤝 Contributing
 
