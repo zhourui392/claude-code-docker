@@ -4,6 +4,7 @@ An unofficial containerized version of the Claude Code CLI, allowing you to inte
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
+[![Docker Image](https://github.com/Zeeno-atl/claude-code/actions/workflows/docker-build.yml/badge.svg)](https://github.com/Zeeno-atl/claude-code/actions/workflows/docker-build.yml)
 
 ## 🌟 Features
 
@@ -24,6 +25,21 @@ An unofficial containerized version of the Claude Code CLI, allowing you to inte
 - A project directory you want to analyze with Claude
 
 ## 🚀 Quick Start
+
+### Using Pre-built Image
+
+```bash
+# Pull the pre-built image
+docker pull ghcr.io/Zeeno-atl/claude-code:latest
+
+# Run with current directory
+docker run -it --rm -v "$(pwd):/app" ghcr.io/Zeeno-atl/claude-code:latest
+
+# Run with API key
+docker run -it --rm -v "$(pwd):/app" -e ANTHROPIC_API_KEY="your_api_key" ghcr.io/Zeeno-atl/claude-code:latest
+```
+
+### Building Locally
 
 1. **Build the container**:
    ```bash
@@ -97,11 +113,25 @@ The container will launch with your current directory mounted, ready to help! It
 
 ```
 /
-├── docker-entrypoint.sh     # Main entry point script
-├── docker-entrypoint.d/     # Initialization scripts
-│   └── 001_claude_code.sh   # Installs Claude Code CLI
-├── app/                     # Mount point for your code
-└── npm-cache/               # Persistent npm cache for faster startups
+├── docker-entrypoint.sh            # Main entry point script
+├── docker-entrypoint.d/            # Initialization scripts
+│   └── 001_setup_claude_env.sh     # Sets up Claude environment
+├── claude-wrapper.sh               # Installs Claude Code CLI
+├── app/                            # Mount point for your code
+└── npm-cache/                      # Persistent npm cache for faster startups
+```
+
+## 📦 CI/CD
+
+This repository includes a GitHub Actions workflow that:
+- Builds the Docker image on every push and tag
+- Publishes it to GitHub Container Registry (ghcr.io)
+- Tags the image based on git tags, branches, and commit SHAs
+- Provides a `latest` tag for the main branch
+
+To access the image, use:
+```bash
+docker pull ghcr.io/Zeeno-atl/claude-code:latest
 ```
 
 ## 🌐 Environment Variables
