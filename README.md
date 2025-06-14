@@ -1,4 +1,32 @@
-# 🤖 Claude Code CLI Container (Unofficial)
+## run on windows
+1. pull
+docker pull ghcr.io/zeeno-atl/claude-code:latest
+
+2、run and save claude login token after logged.
+docker run -it --rm -v"$(pwd):/app" -v"D:/home/.claude:/root/.claude" claude_code:latest
+
+3、mapping docker command to calude, using powershell script
+```
+notepad $PROFILE
+```
+add
+```
+function claude {
+    $hostPath = (Get-Location).Path -replace '\\','/'
+    docker run --rm -it `
+        -v "$hostPath:/app" `
+        -v "D:/home/.claude:/root/.claude" `
+        claude_code:latest $Args
+}
+```
+powershell run
+```
+claude
+```
+
+
+-------------------------------------------------------
+# 🤖 Claude Code CLI Container (Unofficial) - fork
 
 An unofficial containerized version of the Claude Code CLI, allowing you to interact with Claude's powerful AI assistance for coding tasks in any project. This is not an official Anthropic product. All the code is written by the Claude-code.
 
