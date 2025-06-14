@@ -1,11 +1,13 @@
 ## run on windows
 
 1. pull
+```
 docker pull ghcr.io/zeeno-atl/claude-code:latest
-
+```
 2、run and save claude login token after logged.
+```
 docker run -it --rm -v"$(pwd):/app" -v"D:/home/.claude:/root/.claude" claude_code:latest
-
+```
 3、mapping docker command to calude, using powershell script
 ```
 notepad $PROFILE
